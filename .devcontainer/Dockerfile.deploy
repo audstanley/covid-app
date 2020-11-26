@@ -2,7 +2,7 @@ ARG VARIANT="14"
 FROM mcr.microsoft.com/vscode/devcontainers/javascript-node:0-${VARIANT}
 
 RUN cd / \
-    && git clone --branch master https://github.com/audstanley/covid-app \
+    && git clone --branch main https://github.com/audstanley/covid-app \
     && cd covid-app \
     && npm i \
     && cd .. \
