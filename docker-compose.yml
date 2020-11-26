@@ -6,4 +6,4 @@ services:
       dockerfile: ./.devcontainer/Dockerfile.deploy
     entrypoint: /code/entrypoint.sh
     ports:
-      - "32707:3000"
+      - "32708:3000"
