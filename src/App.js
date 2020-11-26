@@ -119,11 +119,156 @@ function PositivityChart(props) {
     };
   }, []);
 
-
   return (
     <div id="chartdiv" style={{ width: "100%", height: "500px" }}></div>
   );
 }
+
+function DeathChart(props) {
+  const chart = useRef(null);
+  
+  //let [data, setData] = useState([]);
+  console.log('DeathChart running...')
+  if(props && props.props && chart && chart.current) {
+    console.log('ok..');
+    let x = am4core.create("chartdiv2", am4charts.XYChart);
+    x.data = props.props;
+    x.paddingRight = 40;
+
+    let dateAxis = x.xAxes.push(new am4charts.DateAxis());
+    dateAxis.renderer.grid.template.location = 0;
+
+    let valueAxis = x.yAxes.push(new am4charts.ValueAxis());
+    valueAxis.tooltip.disabled = true;
+    valueAxis.renderer.minWidth = 35;
+
+    let series = x.series.push(new am4charts.LineSeries());
+    series.dataFields.dateX = "date";
+    series.dataFields.valueY = "value";
+
+    series.tooltipText = "{valueY.value}";
+    x.cursor = new am4charts.XYCursor();
+
+    let scrollbarX = new am4charts.XYChartScrollbar();
+    scrollbarX.series.push(series);
+    x.scrollbarX = scrollbarX;
+
+    chart.current = x;
+  }
+  //console.log(`props: ${JSON.stringify(props)}`);
+  
+  useEffect(() => {
+    let x = am4core.create("chartdiv2", am4charts.XYChart);
+    
+    if(props && props.props ) {
+      x.data = props.props;
+      x.paddingRight = 40;
+
+      //console.log(`xData: ${x.data}`);
+      let dateAxis = x.xAxes.push(new am4charts.DateAxis());
+      dateAxis.renderer.grid.template.location = 0;
+
+      let valueAxis = x.yAxes.push(new am4charts.ValueAxis());
+      valueAxis.tooltip.disabled = true;
+      valueAxis.renderer.minWidth = 35;
+
+      let series = x.series.push(new am4charts.LineSeries());
+      series.dataFields.dateX = "date";
+      series.dataFields.valueY = "value";
+
+      series.tooltipText = "{valueY.value}";
+      x.cursor = new am4charts.XYCursor();
+
+      let scrollbarX = new am4charts.XYChartScrollbar();
+      scrollbarX.series.push(series);
+      x.scrollbarX = scrollbarX;
+
+      chart.current = x;
+    }
+    return () => {
+      chart.current && chart.current.dispose();
+      x.dispose();
+    };
+  }, []);
+
+  return (
+    <div id="chartdiv2" style={{ width: "100%", height: "500px" }}></div>
+  );
+}
+
+function ICUChart(props) {
+  const chart = useRef(null);
+  
+  //let [data, setData] = useState([]);
+  console.log('DeathChart running...')
+  if(props && props.props && chart && chart.current) {
+    console.log('ok..');
+    let x = am4core.create("chartdiv3", am4charts.XYChart);
+    x.data = props.props;
+    x.paddingRight = 40;
+
+    let dateAxis = x.xAxes.push(new am4charts.DateAxis());
+    dateAxis.renderer.grid.template.location = 0;
+
+    let valueAxis = x.yAxes.push(new am4charts.ValueAxis());
+    valueAxis.tooltip.disabled = true;
+    valueAxis.renderer.minWidth = 35;
+
+    let series = x.series.push(new am4charts.LineSeries());
+    series.dataFields.dateX = "date";
+    series.dataFields.valueY = "value";
+
+    series.tooltipText = "{valueY.value}";
+    x.cursor = new am4charts.XYCursor();
+
+    let scrollbarX = new am4charts.XYChartScrollbar();
+    scrollbarX.series.push(series);
+    x.scrollbarX = scrollbarX;
+
+    chart.current = x;
+  }
+  //console.log(`props: ${JSON.stringify(props)}`);
+  
+  useEffect(() => {
+    let x = am4core.create("chartdiv3", am4charts.XYChart);
+    
+    if(props && props.props ) {
+      x.data = props.props;
+      x.paddingRight = 40;
+
+      //console.log(`xData: ${x.data}`);
+      let dateAxis = x.xAxes.push(new am4charts.DateAxis());
+      dateAxis.renderer.grid.template.location = 0;
+
+      let valueAxis = x.yAxes.push(new am4charts.ValueAxis());
+      valueAxis.tooltip.disabled = true;
+      valueAxis.renderer.minWidth = 35;
+
+      let series = x.series.push(new am4charts.LineSeries());
+      series.dataFields.dateX = "date";
+      series.dataFields.valueY = "value";
+
+      series.tooltipText = "{valueY.value}";
+      x.cursor = new am4charts.XYCursor();
+
+      let scrollbarX = new am4charts.XYChartScrollbar();
+      scrollbarX.series.push(series);
+      x.scrollbarX = scrollbarX;
+
+      chart.current = x;
+    }
+    return () => {
+      chart.current && chart.current.dispose();
+      x.dispose();
+    };
+  }, []);
+
+  return (
+    <div id="chartdiv3" style={{ width: "100%", height: "500px" }}></div>
+  );
+}
+
+const renderICUChartData = (ICUChartData) => <div><h2>Currently in ICU:</h2><ICUChart props={ ICUChartData }/> </div>;
 
 function App() {
   const classes = useStyles();
@@ -135,7 +280,7 @@ function App() {
         return { ...state };
     }
   };
-  let [state, dispatch] = useReducer(reducer, { left: false, req: false, data: [], chartData: [], notes: "", link: "Home", currentState: "" });
+  let [state, dispatch] = useReducer(reducer, { left: false, req: false, data: [], chartData: [], deathChartData: [], ICUChartData: [], notes: "", link: "Home", currentState: "" });
 
   if(!state.req) {
     state.req = true;
@@ -158,22 +303,32 @@ function App() {
   {/* renderData will extract ignore the event, but use the USA - state - to make changes to the Base UI component */}
   const renderData = (unitedState) => (event) => {
     let chartData = [];
+    let deathChartData = [];
+    let ICUChartData = [];
     state.chartData = [];
+    state.deathChartData = [];
+    state.ICUChartData = [];
     //console.log(`onClick: ${usStates[unitedState]}`);
     //let d = state.data;
     state.link = unitedState;
     let NotesObj = state.data.filter(e => e.state === usStates[unitedState])[0];
     state.currentState = NotesObj.state;
     //console.log(state);
-    //state.chart = <div id="chartdiv" style={{ width: "100%", height: "500px" }}></div>
     state.notes = NotesObj.notes;
     axios.get(`https://api.covidtracking.com/v1/states/${usStates[unitedState]}/daily.json`)
       .then(USStateData => {
+        //console.log(JSON.stringify(USStateData,null,2));
+        
         for(let i = 0; i < USStateData.data.length; i++) {
           chartData.push({ date: USStateData.data[i].dateChecked, name: `name-${i}`, value: USStateData.data[i].positive })
+          deathChartData.push({ date: USStateData.data[i].dateChecked, name: `name-${i}`, value: USStateData.data[i].death })
+          ICUChartData.push({ date: USStateData.data[i].dateChecked, name: `name-${i}`, value: USStateData.data[i].inIcuCurrently })
         }
         //state.chartData = USStateData.data.map((e, i) => { return { date: e.dateChecked, name: `name-${i}`, value: e.positive }; })
         state.chartData = chartData.filter(e => e.date !== null);
+        state.deathChartData = deathChartData.filter(e => e.date !== null);
+        state.ICUChartData = ICUChartData.filter(e => e.date !== null && e.value !== null);
+        console.log(JSON.stringify(state.ICUChartData,null,2));
         //console.log(`${usStates[unitedState]}: ${JSON.stringify(USStateData,null,2)}`);
         //console.log(`state: ${JSON.stringify(state.chartData,null,2)}`);
         dispatch(state);
@@ -264,6 +419,18 @@ function App() {
                 Positivity Rate:
               </h2>
               <PositivityChart props={ state.chartData }/>
+              <h2>
+                Death Rate:
+              </h2>
+              <DeathChart props={ state.deathChartData }/>
+              
+              {
+                (state.ICUChartData.length > 10)?
+                 renderICUChartData(state.ICUChartData)
+                :
+                  ""
+              }
+              
             <h2>
               Notes:
             </h2>
