@@ -27,13 +27,16 @@ am4core.options.autoDispose = true;
 
 const useStyles = makeStyles({
   root: {
-    background: 'linear-gradient(45deg, #0066FF 30%, #0000CC 90%)',
     border: 0,
-    borderRadius: 3,
-    boxShadow: '0 3px 5px 2px rgba(10, 10, 255, .3)',
-    color: 'white',
-    height: 48,
-    padding: '0 30px',
+    borderRadius: 2,
+    height: 30,
+    // padding: '0 10px',
+    marginTop: "5px",
+    padding: '0px 5px 0px 5px',
+  },
+  icon: {
+    padding: '0px 0px 0px 0px',
+    border: '0px 0px 0px 0px'
   },
   navDisplayFlex: {
     display: `flex`,
@@ -347,9 +350,9 @@ function App() {
     >
       <List>
         {['Home'].map((text) => (
-          <ListItem button dense key={text} onClick={homePage(text)}>
-            <ListItemIcon>
-              <HomeIcon />
+          <ListItem button dense key={text} onClick={homePage(text)} className={classes.root}>
+            <ListItemIcon className={classes.icon}>
+              <HomeIcon style={{ color: "blue", fontSize: "1rem" }}/>
             </ListItemIcon>
             <ListItemText primary={text} />
           </ListItem>
@@ -363,9 +366,10 @@ function App() {
             <ListItem button dense 
                 key={text} 
                 onClick={renderData(text)}
+                className={classes.root}
             >
-              <ListItemIcon>
-                <LocationSearchingIcon />
+              <ListItemIcon className={classes.icon}>
+                <LocationSearchingIcon style={{ color: "blue", fontSize: "1rem" }} />
               </ListItemIcon>
               <ListItemText primary={text} />
             </ListItem>
