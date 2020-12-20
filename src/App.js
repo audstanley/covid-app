@@ -1,4 +1,4 @@
-import React, { useReducer, useRef, useLayoutEffect, useState, useEffect } from "react";
+import React, { useReducer, useRef, useEffect } from "react";
 import ReactMarkdown from 'react-markdown';
 import clsx from 'clsx';
 import axios from 'axios';
@@ -11,7 +11,6 @@ import MenuIcon from '@material-ui/icons/Menu';
 import HomeIcon from '@material-ui/icons/Home';
 import { makeStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
-
 import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
@@ -30,7 +29,6 @@ const useStyles = makeStyles({
     border: 0,
     borderRadius: 2,
     height: 30,
-    // padding: '0 10px',
     marginTop: "5px",
     padding: '0px 5px 0px 5px',
   },
@@ -57,11 +55,7 @@ const useStyles = makeStyles({
 
 function PositivityChart(props) {
   const chart = useRef(null);
-  
-  //let [data, setData] = useState([]);
-  console.log('PositivityChart running...')
   if(props && props.props && chart && chart.current) {
-    console.log('ok..');
     let x = am4core.create("chartdiv", am4charts.XYChart);
     x.data = props.props;
     x.paddingRight = 40;
@@ -86,7 +80,6 @@ function PositivityChart(props) {
 
     chart.current = x;
   }
-  //console.log(`props: ${JSON.stringify(props)}`);
   
   useEffect(() => {
     let x = am4core.create("chartdiv", am4charts.XYChart);
@@ -94,8 +87,6 @@ function PositivityChart(props) {
     if(props && props.props ) {
       x.data = props.props;
       x.paddingRight = 40;
-
-      //console.log(`xData: ${x.data}`);
       let dateAxis = x.xAxes.push(new am4charts.DateAxis());
       dateAxis.renderer.grid.template.location = 0;
 
@@ -120,7 +111,7 @@ function PositivityChart(props) {
       chart.current && chart.current.dispose();
       x.dispose();
     };
-  }, []);
+  });
 
   return (
     <div id="chartdiv" style={{ width: "100%", height: "500px" }}></div>
@@ -158,7 +149,6 @@ function DeathChart(props) {
 
     chart.current = x;
   }
-  //console.log(`props: ${JSON.stringify(props)}`);
   
   useEffect(() => {
     let x = am4core.create("chartdiv2", am4charts.XYChart);
@@ -167,7 +157,6 @@ function DeathChart(props) {
       x.data = props.props;
       x.paddingRight = 40;
 
-      //console.log(`xData: ${x.data}`);
       let dateAxis = x.xAxes.push(new am4charts.DateAxis());
       dateAxis.renderer.grid.template.location = 0;
 
@@ -192,7 +181,7 @@ function DeathChart(props) {
       chart.current && chart.current.dispose();
       x.dispose();
     };
-  }, []);
+  });
 
   return (
     <div id="chartdiv2" style={{ width: "100%", height: "500px" }}></div>
@@ -230,7 +219,6 @@ function ICUChart(props) {
 
     chart.current = x;
   }
-  //console.log(`props: ${JSON.stringify(props)}`);
   
   useEffect(() => {
     let x = am4core.create("chartdiv3", am4charts.XYChart);
@@ -239,7 +227,6 @@ function ICUChart(props) {
       x.data = props.props;
       x.paddingRight = 40;
 
-      //console.log(`xData: ${x.data}`);
       let dateAxis = x.xAxes.push(new am4charts.DateAxis());
       dateAxis.renderer.grid.template.location = 0;
 
@@ -264,7 +251,7 @@ function ICUChart(props) {
       chart.current && chart.current.dispose();
       x.dispose();
     };
-  }, []);
+  });
 
   return (
     <div id="chartdiv3" style={{ width: "100%", height: "500px" }}></div>
@@ -283,14 +270,21 @@ function App() {
         return { ...state };
     }
   };
-  let [state, dispatch] = useReducer(reducer, { left: false, req: false, data: [], chartData: [], deathChartData: [], ICUChartData: [], notes: "", link: "Home", currentState: "" });
+  let [state, dispatch] = useReducer(reducer, { left: false, 
+                                                req: false, 
+                                                data: [], 
+                                                chartData: [], 
+                                                deathChartData: [], 
+                                                ICUChartData: [], 
+                                                notes: "", 
+                                                link: "Home", 
+                                                currentState: "" });
 
   if(!state.req) {
     state.req = true;
     axios.get('https://api.covidtracking.com/v1/states/info.json')
       .then(data => {
         state.data = data.data;
-        //console.log(`axios: ${JSON.stringify(data.data, null, 2)}`);
         dispatch(state, { type: "init" });
       });
   }
@@ -303,7 +297,8 @@ function App() {
     dispatch(state);
   };
 
-  {/* renderData will extract ignore the event, but use the USA - state - to make changes to the Base UI component */}
+  // renderData will extract ignore the event, but use the USA - state - to make changes to the Base UI component 
+  // thus is a factory function.
   const renderData = (unitedState) => (event) => {
     let chartData = [];
     let deathChartData = [];
@@ -311,29 +306,22 @@ function App() {
     state.chartData = [];
     state.deathChartData = [];
     state.ICUChartData = [];
-    //console.log(`onClick: ${usStates[unitedState]}`);
-    //let d = state.data;
     state.link = unitedState;
     let NotesObj = state.data.filter(e => e.state === usStates[unitedState])[0];
     state.currentState = NotesObj.state;
-    //console.log(state);
     state.notes = NotesObj.notes;
     axios.get(`https://api.covidtracking.com/v1/states/${usStates[unitedState]}/daily.json`)
       .then(USStateData => {
         //console.log(JSON.stringify(USStateData,null,2));
-        
         for(let i = 0; i < USStateData.data.length; i++) {
           chartData.push({ date: USStateData.data[i].dateChecked, name: `name-${i}`, value: USStateData.data[i].positive })
           deathChartData.push({ date: USStateData.data[i].dateChecked, name: `name-${i}`, value: USStateData.data[i].death })
           ICUChartData.push({ date: USStateData.data[i].dateChecked, name: `name-${i}`, value: USStateData.data[i].inIcuCurrently })
         }
-        //state.chartData = USStateData.data.map((e, i) => { return { date: e.dateChecked, name: `name-${i}`, value: e.positive }; })
         state.chartData = chartData.filter(e => e.date !== null);
         state.deathChartData = deathChartData.filter(e => e.date !== null);
         state.ICUChartData = ICUChartData.filter(e => e.date !== null && e.value !== null);
         console.log(JSON.stringify(state.ICUChartData,null,2));
-        //console.log(`${usStates[unitedState]}: ${JSON.stringify(USStateData,null,2)}`);
-        //console.log(`state: ${JSON.stringify(state.chartData,null,2)}`);
         dispatch(state);
       })
     
@@ -344,10 +332,7 @@ function App() {
   }
   
   const list = (anchor) => (
-    <div
-      className={clsx(classes.list)}
-      role="presentation"
-    >
+    <div className={clsx(classes.list)} role="presentation">
       <List>
         {['Home'].map((text) => (
           <ListItem button dense key={text} onClick={homePage(text)} className={classes.root}>
@@ -362,7 +347,7 @@ function App() {
       <List>
 
         {/* This is the list of states on the left drawer */}
-          {Object.keys(usStates).map((text, index) => (
+          {Object.keys(usStates).map((text) => (
             <ListItem button dense 
                 key={text} 
                 onClick={renderData(text)}
@@ -395,24 +380,18 @@ function App() {
           <Typography variant="h6" className={classes.title}>
             United States Covid API
           </Typography>
-          {/* <Button color="inherit">Login</Button> */}
         </Toolbar>
       </AppBar>
-
-      {( (state.req)? console.log(`BLERP: ${state.currentState}`) : '' )}
-
-      <div className={classes.content}>
-        {/* { Object.keys(usStates).join(" ") } */}
-      </div>
 
       {/* Render the home page until click dispatch */}
       {
         (state.link === "Home")?
-        <div className={classes.content}>
-          <h1>
-            Home
-          </h1>
-        </div>
+          <div>
+            <div style={{marginLeft: '200px', height: '2000px', maxHeight: '1500'}} dangerouslySetInnerHTML={{__html: '<iframe style="width: 100%; height: 100%; overflow: hidden;" src="https://www.arcgis.com/apps/opsdashboard/index.html#/409af567637846e3b5d4182fcd779bea" width="100" height="100" scrolling="yes">Iframes '}}></div>
+            <div style={{marginLeft: '220px', marginTop: '1rem', marginBottom: '1rem'}}>
+              Credit: John Hopkins University 
+            </div>
+          </div>
         :
         (state.currentState)?
           <div className={ classes.content }>
@@ -434,7 +413,6 @@ function App() {
                 :
                   ""
               }
-              
             <h2>
               Notes:
             </h2>
@@ -443,7 +421,6 @@ function App() {
           :
           ""
       }
-      
     </div>
   );
 }
